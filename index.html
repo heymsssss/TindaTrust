@@ -305,11 +305,15 @@
   #btn-utang:hover{ background:#a8332a; }
   #btn-repay{ background: var(--ink-teal); color: #fff; }
   #btn-repay:hover{ background: var(--ink-teal-deep); }
+  .new-customer-field{ margin-top: 22px; padding-top: 18px; border-top: 1px dashed var(--paper-dark); }
+  .new-customer-row{ display:flex; gap:8px; }
+  .new-customer-row input{ flex: 1 1 auto; }
   #btn-new{
     background: transparent;
     border: 2px solid var(--ink-teal) !important;
     color: var(--ink-teal-deep);
-    flex-basis: 100%;
+    padding: 10px 16px;
+    white-space: nowrap;
   }
 
   .ledger-page{
@@ -382,6 +386,48 @@
   }
   @media (prefers-reduced-motion: reduce){
     .stamp.show{ animation: none; opacity:1; transform: rotate(-9deg) scale(1); }
+  }
+
+  .history-panel{
+    background: var(--paper);
+    color: var(--ink-teal-deep);
+    border-radius: 14px;
+    margin-top: 20px;
+    padding: 20px 24px;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.25);
+  }
+  .history-head{
+    display:flex; justify-content:space-between; align-items:baseline;
+    flex-wrap:wrap; gap:8px; margin-bottom: 12px;
+  }
+  .history-head h3{
+    font-family: var(--font-display);
+    font-size: 1rem;
+    margin:0;
+    color: var(--tinta-blue);
+  }
+  .history-head .hint{ font-size: 0.8rem; color:#555; margin:0; }
+  .history-list{
+    list-style:none; margin:0; padding:0;
+    max-height: 260px; overflow-y:auto;
+  }
+  .history-list li{
+    display:grid;
+    grid-template-columns: 34px 1fr auto 64px 84px;
+    gap: 10px;
+    align-items:center;
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    padding: 8px 2px;
+    border-bottom: 1px dashed var(--paper-dark);
+  }
+  .history-list li:last-child{ border-bottom:none; }
+  .hist-seq{ opacity: 0.5; }
+  .hist-amount{ text-align:right; }
+  .hist-balance{ text-align:right; opacity:0.7; }
+  @media (max-width: 640px){
+    .history-list li{ grid-template-columns: 26px 1fr auto 50px; font-size: 0.74rem; }
+    .hist-balance{ display:none; }
   }
 
   /* ---------- How it works ---------- */
@@ -547,7 +593,14 @@
             <div class="demo-actions">
               <button id="btn-utang" type="button">Record utang</button>
               <button id="btn-repay" type="button">Repay</button>
-              <button id="btn-new" type="button">+ New customer</button>
+            </div>
+
+            <div class="field new-customer-field">
+              <label for="new-name-input">Add a customer</label>
+              <div class="new-customer-row">
+                <input type="text" id="new-name-input" placeholder="e.g. Tita Baby" maxlength="30">
+                <button id="btn-new" type="button">Add</button>
+              </div>
             </div>
           </div>
 
@@ -558,6 +611,14 @@
             <div class="stamp" id="paid-stamp">NABAYARAN</div>
           </div>
         </div>
+      </div>
+
+      <div class="history-panel">
+        <div class="history-head">
+          <h3>Full transaction history</h3>
+          <p class="hint">Every record_utang and repay call, across all customers, in order.</p>
+        </div>
+        <ul class="history-list" id="history-list"></ul>
       </div>
     </div>
   </section>
@@ -638,7 +699,8 @@
 
   let customers = JSON.parse(JSON.stringify(startingCustomers));
   let activeIndex = 0;
-  let newCustomerCount = 0;
+  let history = [];
+  let historySeq = 0;
 
   const select = document.getElementById('customer-select');
   const nameEl = document.getElementById('active-name');
@@ -646,6 +708,8 @@
   const entriesEl = document.getElementById('entries-list');
   const stampEl = document.getElementById('paid-stamp');
   const amountInput = document.getElementById('amount-input');
+  const historyListEl = document.getElementById('history-list');
+  const newNameInput = document.getElementById('new-name-input');
 
   function renderSelect(){
     select.innerHTML = '';
@@ -688,6 +752,24 @@
     }
   }
 
+  function renderHistory(){
+    historyListEl.innerHTML = '';
+    if(history.length === 0){
+      const li = document.createElement('li');
+      li.style.gridTemplateColumns = '1fr';
+      li.innerHTML = '<span style="opacity:.5">No transactions yet.</span>';
+      historyListEl.appendChild(li);
+      return;
+    }
+    history.slice().reverse().forEach(h => {
+      const li = document.createElement('li');
+      const tagClass = h.type === 'utang' ? 'debt' : 'pay';
+      const tagLabel = h.type === 'utang' ? 'UTANG' : 'BAYAD';
+      li.innerHTML = `<span class="hist-seq">#${h.seq}</span><span class="hist-customer">${h.customer}</span><span class="tag ${tagClass}">${tagLabel}</span><span class="hist-amount">₱${h.amount}</span><span class="hist-balance">bal ₱${h.resultingBalance}</span>`;
+      historyListEl.appendChild(li);
+    });
+  }
+
   select.addEventListener('change', () => {
     activeIndex = parseInt(select.value, 10);
     renderLedger();
@@ -699,7 +781,10 @@
     c.balance += amount;
     const entryNum = c.entries.length + 1;
     c.entries.push({ type: 'utang', amount, label: `Entry #${entryNum}` });
+    historySeq += 1;
+    history.push({ seq: historySeq, customer: c.name, type: 'utang', amount, resultingBalance: c.balance });
     renderLedger();
+    renderHistory();
   });
 
   document.getElementById('btn-repay').addEventListener('click', () => {
@@ -710,19 +795,33 @@
     c.balance -= applied;
     const entryNum = c.entries.length + 1;
     c.entries.push({ type: 'repay', amount: applied, label: `Entry #${entryNum}` });
+    historySeq += 1;
+    history.push({ seq: historySeq, customer: c.name, type: 'repay', amount: applied, resultingBalance: c.balance });
     renderLedger();
+    renderHistory();
   });
 
-  document.getElementById('btn-new').addEventListener('click', () => {
-    newCustomerCount += 1;
-    customers.push({ name: `New customer ${newCustomerCount}`, balance: 0, entries: [] });
+  function addNewCustomer(){
+    const name = newNameInput.value.trim();
+    if(!name){ newNameInput.focus(); return; }
+    customers.push({ name, balance: 0, entries: [] });
     activeIndex = customers.length - 1;
+    newNameInput.value = '';
     renderSelect();
     renderLedger();
+  }
+
+  document.getElementById('btn-new').addEventListener('click', addNewCustomer);
+  newNameInput.addEventListener('keydown', (e) => {
+    if(e.key === 'Enter'){
+      e.preventDefault();
+      addNewCustomer();
+    }
   });
 
   renderSelect();
   renderLedger();
+  renderHistory();
 })();
 </script>
 
