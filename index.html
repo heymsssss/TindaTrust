@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TindaTrust — Utang, isulat. Bayad, malinaw.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink-teal: #123C3B;
+    --ink-teal-deep: #0B2827;
+    --paper: #F6EFDD;
+    --paper-dark: #EAE0C4;
+    --jeepney-yellow: #F2B705;
+    --sampaguita: #FBFAF5;
+    --tinta-blue: #2647A0;
+    --signage-red: #C0392B;
+    --ruled-line: rgba(38,71,160,0.16);
+
+    --font-display: 'Baloo 2', system-ui, sans-serif;
+    --font-mono: 'Space Mono', monospace;
+    --font-body: 'Inter', system-ui, sans-serif;
+  }
+
+  *{ box-sizing: border-box; }
+  html{ scroll-behavior: smooth; }
+
+  body{
+    margin:0;
+    background: var(--ink-teal);
+    color: var(--sampaguita);
+    font-family: var(--font-body);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a{ color: inherit; }
+
+  :focus-visible{
+    outline: 3px solid var(--jeepney-yellow);
+    outline-offset: 2px;
+  }
+
+  .wrap{
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* ---------- Header ---------- */
+  header.site{
+    padding: 28px 0 8px;
+  }
+  .brandbar{
+    display:flex;
+    align-items:center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .logo{
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.4rem;
+    letter-spacing: 0.01em;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .logo .dot{
+    width:10px; height:10px; border-radius:50%;
+    background: var(--jeepney-yellow);
+    display:inline-block;
+  }
+  nav.top a{
+    text-decoration:none;
+    font-size: 0.92rem;
+    font-weight:600;
+    color: var(--sampaguita);
+    opacity: 0.85;
+    margin-left: 22px;
+  }
+  nav.top a:hover{ opacity: 1; text-decoration: underline wavy var(--jeepney-yellow) 2px; text-underline-offset: 5px; }
+
+  /* ---------- Hero ---------- */
+  .hero{
+    padding: 64px 0 40px;
+    display:grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 48px;
+    align-items:center;
+  }
+  .eyebrow{
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--jeepney-yellow);
+    margin: 0 0 14px;
+  }
+  h1.headline{
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(2.1rem, 4.2vw, 3.4rem);
+    line-height: 1.08;
+    margin: 0 0 18px;
+  }
+  h1.headline em{
+    font-style: normal;
+    color: var(--jeepney-yellow);
+  }
+  .sub{
+    font-size: 1.08rem;
+    color: rgba(251,250,245,0.82);
+    max-width: 46ch;
+    margin: 0 0 26px;
+  }
+  .cta-row{ display:flex; gap:14px; flex-wrap:wrap; }
+  .btn{
+    font-family: var(--font-body);
+    font-weight:700;
+    font-size: 0.95rem;
+    padding: 13px 22px;
+    border-radius: 8px;
+    border: 2px solid transparent;
+    cursor:pointer;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+  }
+  .btn.primary{ background: var(--jeepney-yellow); color: var(--ink-teal-deep); }
+  .btn.primary:hover{ background:#ffcb2e; }
+  .btn.ghost{ background: transparent; border-color: rgba(251,250,245,0.35); color: var(--sampaguita); }
+  .btn.ghost:hover{ border-color: var(--sampaguita); }
+
+  /* the old-notebook vs new-ledger visual */
+  .compare{
+    position: relative;
+    height: 340px;
+  }
+  .card-notebook, .card-digital{
+    position:absolute;
+    width: 84%;
+    border-radius: 10px;
+    padding: 20px 22px;
+    box-shadow: 0 18px 40px rgba(0,0,0,0.35);
+  }
+  .card-notebook{
+    top: 0; left: 0;
+    background: #fffdf6;
+    color: #2a2a2a;
+    transform: rotate(-4.5deg);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.85rem;
+    border-left: 3px solid var(--signage-red);
+  }
+  .card-notebook .crossed{
+    text-decoration: line-through;
+    text-decoration-color: var(--signage-red);
+    opacity: 0.55;
+  }
+  .card-notebook .title{
+    font-family: var(--font-display);
+    font-weight:700;
+    font-size: 1rem;
+    margin-bottom: 10px;
+    color: var(--signage-red);
+  }
+  .card-notebook .row{ display:flex; justify-content: space-between; padding: 3px 0; }
+
+  .card-digital{
+    bottom: 0; right: 0;
+    background: var(--paper);
+    color: var(--ink-teal-deep);
+    transform: rotate(3deg);
+  }
+  .card-digital .title{
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 10px;
+    color: var(--tinta-blue);
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .card-digital .title .chain-dot{
+    width:8px;height:8px;border-radius:50%;
+    background: #2e9e6c;
+    box-shadow: 0 0 0 4px rgba(46,158,108,0.18);
+  }
+  .card-digital .row{
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    display:flex; justify-content: space-between;
+    padding: 4px 0;
+    border-bottom: 1px dashed var(--ruled-line);
+  }
+  .card-digital .balance{
+    margin-top: 12px;
+    font-weight:700;
+    font-family: var(--font-mono);
+  }
+
+  /* ---------- Section shell ---------- */
+  section{ padding: 70px 0; }
+  .section-head{ max-width: 640px; margin: 0 0 36px; }
+  .section-head .eyebrow{ margin-bottom: 10px; }
+  h2.h{
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(1.6rem, 3vw, 2.2rem);
+    margin: 0 0 12px;
+  }
+  .section-head p{ color: rgba(251,250,245,0.78); margin:0; }
+
+  /* ---------- Ledger demo (signature element) ---------- */
+  .ledger-shell{
+    background: var(--paper);
+    border-radius: 14px;
+    color: var(--ink-teal-deep);
+    padding: 0;
+    overflow:hidden;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.35);
+  }
+  .ledger-top{
+    background: var(--ink-teal-deep);
+    color: var(--sampaguita);
+    padding: 16px 24px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+  }
+  .ledger-top .live{
+    display:flex; align-items:center; gap:8px;
+  }
+  .ledger-top .live .pulse{
+    width:8px;height:8px;border-radius:50%;
+    background: var(--jeepney-yellow);
+    animation: pulse 1.8s infinite;
+  }
+  @keyframes pulse{
+    0%,100%{ opacity:1; transform: scale(1); }
+    50%{ opacity:0.4; transform: scale(1.3); }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .ledger-top .live .pulse{ animation: none; }
+  }
+
+  .ledger-body{
+    display:grid;
+    grid-template-columns: 300px 1fr;
+  }
+  .ledger-controls{
+    padding: 24px;
+    border-right: 2px solid var(--paper-dark);
+    background: #FBF6E8;
+  }
+  .ledger-controls h3{
+    font-family: var(--font-display);
+    font-size: 1rem;
+    margin: 0 0 4px;
+  }
+  .ledger-controls .hint{
+    font-size: 0.82rem;
+    color: #555;
+    margin: 0 0 18px;
+  }
+  .field{ margin-bottom: 14px; }
+  .field label{
+    display:block;
+    font-size: 0.78rem;
+    font-weight:700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 6px;
+    color: var(--ink-teal-deep);
+  }
+  .field select, .field input{
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 7px;
+    border: 2px solid var(--paper-dark);
+    background: #fff;
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    color: var(--ink-teal-deep);
+  }
+  .field select:focus, .field input:focus{ border-color: var(--tinta-blue); }
+  .demo-actions{ display:flex; gap:10px; margin-top: 18px; flex-wrap: wrap; }
+  .demo-actions button{
+    flex: 1 1 auto;
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 11px 14px;
+    border-radius: 7px;
+    border: none;
+    cursor: pointer;
+  }
+  #btn-utang{ background: var(--signage-red); color: #fff; }
+  #btn-utang:hover{ background:#a8332a; }
+  #btn-repay{ background: var(--ink-teal); color: #fff; }
+  #btn-repay:hover{ background: var(--ink-teal-deep); }
+  #btn-new{
+    background: transparent;
+    border: 2px solid var(--ink-teal) !important;
+    color: var(--ink-teal-deep);
+    flex-basis: 100%;
+  }
+
+  .ledger-page{
+    padding: 24px 28px;
+    background-image: repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 33px,
+      var(--ruled-line) 34px
+    );
+    min-height: 380px;
+    position: relative;
+  }
+  .customer-name{
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.15rem;
+    color: var(--tinta-blue);
+    margin: 0 0 4px;
+  }
+  .balance-line{
+    font-family: var(--font-mono);
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin: 0 0 18px;
+  }
+  .balance-line .peso{ font-size: 1rem; opacity: 0.6; margin-right: 6px; }
+  .balance-line.zero{ color: #2e9e6c; }
+  .balance-line.owing{ color: var(--signage-red); }
+
+  .entries{ list-style:none; margin:0; padding:0; }
+  .entries li{
+    font-family: var(--font-mono);
+    font-size: 0.86rem;
+    display:flex;
+    justify-content: space-between;
+    padding: 6px 0;
+  }
+  .entries li .tag{
+    font-size: 0.7rem;
+    padding: 2px 7px;
+    border-radius: 4px;
+    margin-right: 8px;
+    font-weight:700;
+  }
+  .tag.debt{ background: rgba(192,57,43,0.14); color: var(--signage-red); }
+  .tag.pay{ background: rgba(46,158,108,0.14); color: #237a53; }
+
+  .stamp{
+    position:absolute;
+    top: 20px; right: 24px;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.3rem;
+    color: #2e9e6c;
+    border: 4px solid #2e9e6c;
+    padding: 6px 14px;
+    border-radius: 8px;
+    transform: rotate(-9deg) scale(0);
+    opacity: 0;
+    letter-spacing: 0.05em;
+  }
+  .stamp.show{
+    animation: stampIn 0.4s ease-out forwards;
+  }
+  @keyframes stampIn{
+    0%{ transform: rotate(-9deg) scale(2); opacity:0; }
+    60%{ transform: rotate(-9deg) scale(0.92); opacity:1; }
+    100%{ transform: rotate(-9deg) scale(1); opacity:1; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .stamp.show{ animation: none; opacity:1; transform: rotate(-9deg) scale(1); }
+  }
+
+  /* ---------- How it works ---------- */
+  .steps{
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  .step{
+    background: rgba(251,250,245,0.05);
+    border: 1px solid rgba(251,250,245,0.14);
+    border-radius: 12px;
+    padding: 22px;
+  }
+  .step .num{
+    font-family: var(--font-mono);
+    color: var(--jeepney-yellow);
+    font-size: 0.85rem;
+    margin-bottom: 10px;
+  }
+  .step h4{
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    margin: 0 0 8px;
+  }
+  .step p{ margin:0; color: rgba(251,250,245,0.75); font-size: 0.92rem; }
+
+  /* ---------- Features / why stellar ---------- */
+  .ledger-list{
+    background: var(--paper);
+    border-radius: 12px;
+    color: var(--ink-teal-deep);
+    overflow:hidden;
+  }
+  .ledger-list .li{
+    display:grid;
+    grid-template-columns: 220px 1fr;
+    gap: 18px;
+    padding: 18px 24px;
+    border-bottom: 1px dashed var(--paper-dark);
+    align-items:baseline;
+  }
+  .ledger-list .li:last-child{ border-bottom:none; }
+  .ledger-list .li .name{
+    font-family: var(--font-mono);
+    font-weight: 700;
+    color: var(--tinta-blue);
+    font-size: 0.9rem;
+  }
+  .ledger-list .li .desc{ font-size: 0.92rem; color:#3a3a3a; }
+
+  /* ---------- Footer ---------- */
+  footer{
+    padding: 40px 0 60px;
+    border-top: 1px solid rgba(251,250,245,0.14);
+    margin-top: 30px;
+  }
+  footer .foot-row{
+    display:flex;
+    justify-content: space-between;
+    align-items:center;
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+  footer .foot-brand{
+    font-family: var(--font-display);
+    font-weight:700;
+  }
+  footer a.repo{
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--jeepney-yellow);
+    text-decoration: none;
+  }
+  footer a.repo:hover{ text-decoration: underline; }
+  footer .license{
+    font-size: 0.78rem;
+    color: rgba(251,250,245,0.5);
+    margin-top: 10px;
+  }
+
+  @media (max-width: 860px){
+    .hero{ grid-template-columns: 1fr; }
+    .compare{ height: 300px; margin-top: 10px; }
+    .ledger-body{ grid-template-columns: 1fr; }
+    .ledger-controls{ border-right:none; border-bottom: 2px solid var(--paper-dark); }
+    .steps{ grid-template-columns: 1fr; }
+    .ledger-list .li{ grid-template-columns: 1fr; }
+    nav.top a{ margin-left: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site">
+  <div class="wrap brandbar">
+    <div class="logo"><span class="dot"></span> TindaTrust</div>
+    <nav class="top">
+      <a href="#demo">Demo</a>
+      <a href="#how">How it works</a>
+      <a href="#stellar">Why Stellar</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero wrap">
+    <div>
+      <p class="eyebrow">Sari-sari store · utang ledger</p>
+      <h1 class="headline">Utang, isulat.<br><em>Bayad, malinaw.</em></h1>
+      <p class="sub">Aling Rosa's notebook gets lost, disputed, and "forgotten." TindaTrust puts every utang and every payment on-chain — so the balance is never a guessing game.</p>
+      <div class="cta-row">
+        <a href="#demo" class="btn primary">Try the ledger demo</a>
+        <a href="#stellar" class="btn ghost">See the Stellar features</a>
+      </div>
+    </div>
+    <div class="compare" aria-hidden="true">
+      <div class="card-notebook">
+        <div class="title">Aling Rosa's Notebook</div>
+        <div class="row"><span>Mar 3 — Jun-jun</span><span>₱85</span></div>
+        <div class="row crossed"><span>Feb 20 — Nene</span><span>₱120</span></div>
+        <div class="row"><span>Mar 5 — Kuya Bert</span><span>₱200</span></div>
+        <div class="row"><span style="opacity:.5">torn page, rain-smudged…</span></div>
+      </div>
+      <div class="card-digital">
+        <div class="title"><span class="chain-dot"></span> TindaTrust Ledger</div>
+        <div class="row"><span>Jun-jun</span><span>₱85</span></div>
+        <div class="row"><span>Nene</span><span>PAID ✓</span></div>
+        <div class="row"><span>Kuya Bert</span><span>₱200</span></div>
+        <div class="balance">Recorded on Stellar — can't be lost or denied.</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="demo">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow">Try it</p>
+        <h2 class="h">The MVP flow, live</h2>
+        <p>Pick a customer, record a utang, then repay it. This mirrors exactly what the Soroban contract does on testnet — <code style="font-family:var(--font-mono)">record_utang</code> and <code style="font-family:var(--font-mono)">repay</code>.</p>
+      </div>
+
+      <div class="ledger-shell">
+        <div class="ledger-top">
+          <span>tindatrust.contract · testnet (simulated)</span>
+          <span class="live"><span class="pulse"></span> live balance</span>
+        </div>
+        <div class="ledger-body">
+          <div class="ledger-controls">
+            <h3>Store counter</h3>
+            <p class="hint">Owner-side actions</p>
+
+            <div class="field">
+              <label for="customer-select">Customer</label>
+              <select id="customer-select"></select>
+            </div>
+
+            <div class="field">
+              <label for="amount-input">Amount (₱)</label>
+              <input type="number" id="amount-input" min="1" value="50" inputmode="numeric">
+            </div>
+
+            <div class="demo-actions">
+              <button id="btn-utang" type="button">Record utang</button>
+              <button id="btn-repay" type="button">Repay</button>
+              <button id="btn-new" type="button">+ New customer</button>
+            </div>
+          </div>
+
+          <div class="ledger-page">
+            <p class="customer-name" id="active-name">—</p>
+            <p class="balance-line" id="active-balance">₱0</p>
+            <ul class="entries" id="entries-list"></ul>
+            <div class="stamp" id="paid-stamp">NABAYARAN</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="how">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow">The flow, end to end</p>
+        <h2 class="h">Three steps, under two minutes</h2>
+        <p>This is the exact order a judge would see in a live demo.</p>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <div class="num">01 · customer</div>
+          <h4>Bili sa utang</h4>
+          <p>Customer buys on credit at the counter, like always. Nothing changes for them.</p>
+        </div>
+        <div class="step">
+          <div class="num">02 · on-chain</div>
+          <h4>Naka-record na</h4>
+          <p>Owner taps "record utang." A Soroban contract call updates that customer's balance, publicly and permanently.</p>
+        </div>
+        <div class="step">
+          <div class="num">03 · settlement</div>
+          <h4>Bayad, malinaw</h4>
+          <p>Customer repays in cash or USDC. Balance drops to zero on-chain — no argument, no lost notebook page.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="stellar">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow">Why Stellar, specifically</p>
+        <h2 class="h">Built for ₱20 transactions, not ₱20,000 ones</h2>
+        <p>Fees low enough, and settlement fast enough, that tracking small everyday credit actually makes sense.</p>
+      </div>
+      <div class="ledger-list">
+        <div class="li">
+          <div class="name">Soroban contracts</div>
+          <div class="desc">Runs the utang ledger logic itself — recording debt, enforcing repayment limits, storing balances per customer.</div>
+        </div>
+        <div class="li">
+          <div class="name">Custom tokens</div>
+          <div class="desc">A store-issued credit asset customers can eventually hold, trade, or redeem across neighboring sari-sari stores.</div>
+        </div>
+        <div class="li">
+          <div class="name">Trustlines</div>
+          <div class="desc">Customers explicitly opt in to a store's credit asset — no one is handed a token they didn't agree to.</div>
+        </div>
+        <div class="li">
+          <div class="name">USDC settlement</div>
+          <div class="desc">Real repayment happens in a stable asset, so the store owner isn't exposed to volatility for day-to-day cash flow.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap foot-row">
+    <div>
+      <div class="foot-brand">TindaTrust</div>
+      <div class="license">MIT licensed · demo interface for hackathon pitch, not connected to a live wallet</div>
+    </div>
+    <a class="repo" href="#" onclick="return false;">github.com/&lt;your-username&gt;/tindatrust-dapp</a>
+  </div>
+</footer>
+
+<script>
+(function(){
+  const startingCustomers = [
+    { name: "Jun-jun", balance: 0, entries: [] },
+    { name: "Nene", balance: 0, entries: [] },
+    { name: "Kuya Bert", balance: 0, entries: [] }
+  ];
+
+  let customers = JSON.parse(JSON.stringify(startingCustomers));
+  let activeIndex = 0;
+  let newCustomerCount = 0;
+
+  const select = document.getElementById('customer-select');
+  const nameEl = document.getElementById('active-name');
+  const balanceEl = document.getElementById('active-balance');
+  const entriesEl = document.getElementById('entries-list');
+  const stampEl = document.getElementById('paid-stamp');
+  const amountInput = document.getElementById('amount-input');
+
+  function renderSelect(){
+    select.innerHTML = '';
+    customers.forEach((c, i) => {
+      const opt = document.createElement('option');
+      opt.value = i;
+      opt.textContent = c.name;
+      select.appendChild(opt);
+    });
+    select.value = activeIndex;
+  }
+
+  function renderLedger(){
+    const c = customers[activeIndex];
+    nameEl.textContent = c.name;
+
+    balanceEl.textContent = '₱ ' + c.balance;
+    balanceEl.classList.remove('zero', 'owing');
+    balanceEl.classList.add(c.balance === 0 ? 'zero' : 'owing');
+
+    entriesEl.innerHTML = '';
+    if(c.entries.length === 0){
+      const li = document.createElement('li');
+      li.innerHTML = '<span style="opacity:.5">No entries yet — record a utang to start.</span>';
+      entriesEl.appendChild(li);
+    } else {
+      c.entries.slice().reverse().forEach(entry => {
+        const li = document.createElement('li');
+        const tagClass = entry.type === 'utang' ? 'debt' : 'pay';
+        const tagLabel = entry.type === 'utang' ? 'UTANG' : 'BAYAD';
+        li.innerHTML = `<span><span class="tag ${tagClass}">${tagLabel}</span>${entry.label}</span><span>₱${entry.amount}</span>`;
+        entriesEl.appendChild(li);
+      });
+    }
+
+    if(c.balance === 0 && c.entries.length > 0){
+      stampEl.classList.add('show');
+    } else {
+      stampEl.classList.remove('show');
+    }
+  }
+
+  select.addEventListener('change', () => {
+    activeIndex = parseInt(select.value, 10);
+    renderLedger();
+  });
+
+  document.getElementById('btn-utang').addEventListener('click', () => {
+    const amount = Math.max(1, parseInt(amountInput.value, 10) || 0);
+    const c = customers[activeIndex];
+    c.balance += amount;
+    const entryNum = c.entries.length + 1;
+    c.entries.push({ type: 'utang', amount, label: `Entry #${entryNum}` });
+    renderLedger();
+  });
+
+  document.getElementById('btn-repay').addEventListener('click', () => {
+    const amount = Math.max(1, parseInt(amountInput.value, 10) || 0);
+    const c = customers[activeIndex];
+    const applied = Math.min(amount, c.balance);
+    if(applied <= 0){ renderLedger(); return; }
+    c.balance -= applied;
+    const entryNum = c.entries.length + 1;
+    c.entries.push({ type: 'repay', amount: applied, label: `Entry #${entryNum}` });
+    renderLedger();
+  });
+
+  document.getElementById('btn-new').addEventListener('click', () => {
+    newCustomerCount += 1;
+    customers.push({ name: `New customer ${newCustomerCount}`, balance: 0, entries: [] });
+    activeIndex = customers.length - 1;
+    renderSelect();
+    renderLedger();
+  });
+
+  renderSelect();
+  renderLedger();
+})();
+</script>
+
+</body>
+</html>
